@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import datetime
 
 st.set_page_config(page_title="COT Dashboard", layout="wide")
 st.title("COT Positioning Dashboard")
@@ -29,14 +30,14 @@ else:
                 df = df.dropna(subset=["Date"])
                 df.sort_values("Date", inplace=True)
 
-                min_date = df["Date"].min()
-                max_date = df["Date"].max()
+                min_date = df["Date"].min().to_pydatetime()
+                max_date = df["Date"].max().to_pydatetime()
 
                 if pd.isnull(min_date) or pd.isnull(max_date):
                     st.warning("Invalid date values in this file.")
                 else:
                     date_range = st.slider("Select Date Range:", min_value=min_date, max_value=max_date, value=(min_date, max_date))
-                    df_filtered = df[(df["Date"] >= date_range[0]) & (df["Date"] <= date_range[1])]
+                    df_filtered = df[(df["Date"] >= pd.to_datetime(date_range[0])) & (df["Date"] <= pd.to_datetime(date_range[1]))]
 
                     st.subheader(f"Net Positioning for {selected_asset}")
                     st.line_chart(df_filtered.set_index("Date")[['Institutional Net', 'Retail Net']])
